@@ -9,9 +9,15 @@
 <body>
   <div class="container">
     <h1>Liquipedia Tournament Scraper</h1>
-    <input type="text" id="urlInput" placeholder="Paste the tournament link here">
-    <button id="convertButton">Search Data</button>
-    <p id="resultMessage" class="result"></p>
+    <input type="text" id="url-input" placeholder="Enter any tournament URL from any game">
+    <button id="scrape-btn">Search</button>
+    
+    <!-- Loading bar -->
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progress-bar">
+        <span id="progress-text">0%</span>
+      </div>
+    </div>
 
     <!-- Results Table -->
     <div id="tableContainer" style="display: none; margin-top: 20px;">

@@ -5,6 +5,11 @@ const path = require('path');
 const app = express();
 const PORT = 3000;
 
+// Cache para armazenar respostas recentes por 1 minuto
+const cache = new Map();
+const CACHE_EXPIRATION_MS = 300 * 1000; // 5 minutos
+const REQUEST_DELAY_MS = 2000; // 2 segundos entre requisições
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Função de conversão de URL dinâmica para qualquer jogo
@@ -12,17 +17,14 @@ function convertToRunQueryURL(staticURL) {
   try {
     const urlObj = new URL(staticURL);
     const pathParts = urlObj.pathname.split("/");
-    const game = pathParts[1]; // Identifica o nome do jogo (ex: 'overwatch', 'valorant', etc.)
-    const tournamentPath = pathParts.slice(2).join("/"); // Parte que contém o caminho do torneio
+    const game = pathParts[1]; // Identifica o nome do jogo
+    const tournamentPath = pathParts.slice(2).join("/");
 
     if (!game || !tournamentPath) {
       throw new Error("Invalid URL format. Please enter a valid URL.");
     }
 
-    // Base URL dinâmica com o nome do jogo
     const baseRunQueryURL = `https://liquipedia.net/${game}/Special:RunQuery/Tournament_player_information`;
-
-    // Substituir underscores por espaços e codificar barras e espaços
     const formattedParams = encodeURIComponent(tournamentPath.replace(/_/g, " "));
     const runQueryURL = `${baseRunQueryURL}?pfRunQueryFormName=Tournament+player+information&TPI%5Bpage%5D=${formattedParams}&wpRunQuery=Run+query`;
 
@@ -30,6 +32,11 @@ function convertToRunQueryURL(staticURL) {
   } catch (error) {
     throw new Error("Invalid or unsupported URL.");
   }
+}
+
+// Função para aplicar um delay entre requisições
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 app.get('/scrape', async (req, res) => {
@@ -49,12 +56,23 @@ app.get('/scrape', async (req, res) => {
     return res.status(400).json({ error: error.message });
   }
 
-  // 2. Fazer o scraping a partir da URL convertida
+  // 2. Cache: Verificar se os dados já estão em cache
+  const cachedResponse = cache.get(convertedURL);
+  if (cachedResponse && Date.now() - cachedResponse.timestamp < CACHE_EXPIRATION_MS) {
+    console.log('Returning cached response');
+    return res.status(200).json(cachedResponse.data);
+  }
+
+  // 3. Delay entre requisições para respeitar a política de rate limit
+  console.log(`Waiting ${REQUEST_DELAY_MS / 1000} seconds before making the request...`);
+  await delay(REQUEST_DELAY_MS);
+
+  // 4. Fazer o scraping a partir da URL convertida
   try {
     const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
 
-    await page.setUserAgent('MyScraperBot/1.0 (https://example.com; email@example.com)');
+    await page.setUserAgent('LiquipediaScraper/1.0 (https://github.com/douglasreckz/; douglas.reckziegel@hotmail.com)');
     await page.goto(convertedURL, { waitUntil: 'networkidle2', timeout: 90000 });
 
     await page.waitForSelector('div.table-responsive table');
@@ -105,6 +123,10 @@ app.get('/scrape', async (req, res) => {
     });
 
     await browser.close();
+
+    // 5. Salvar a resposta no cache
+    cache.set(convertedURL, { data: scrapedData, timestamp: Date.now() });
+
     res.status(200).json(scrapedData);
   } catch (error) {
     console.error('Error scraping data:', error.message);
