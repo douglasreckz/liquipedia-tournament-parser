@@ -1,80 +1,38 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Overwatch Tournament Players</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: center;
-    }
-    th {
-      background-color: #4CAF50;
-      color: white;
-    }
-    tr:nth-child(even) {
-      background-color: #f2f2f2;
-    }
-    a {
-      color: #007bff;
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-  </style>
+  <title>Liquipedia Tournament Scraper</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Overwatch Tournament Player Information</h1>
-  <button onclick="fetchData()">Carregar Dados</button>
-  <table id="data-table">
-    <thead>
-      <tr>
-        <th>Player</th>
-        <th>Team</th>
-        <th>Twitter</th>
-        <th>YouTube</th>
-        <th>Faceit</th>
-        <th>Twitch</th>
-        <th>Instagram</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <div class="container">
+    <h1>Liquipedia Tournament Scraper</h1>
+    <input type="text" id="urlInput" placeholder="Paste the tournament link here">
+    <button id="convertButton">Search Data</button>
+    <p id="resultMessage" class="result"></p>
 
-  <script>
-    // Função para buscar os dados do servidor e imprimir na tabela
-    async function fetchData() {
-      const response = await fetch('/scrape'); // Faz a requisição ao backend
-      const data = await response.json(); // Converte o JSON retornado
-      const tbody = document.querySelector('#data-table tbody');
-      tbody.innerHTML = ''; // Limpa a tabela antes de preencher
+    <!-- Results Table -->
+    <div id="tableContainer" style="display: none; margin-top: 20px;">
+      <h3>Search Results</h3>
+      <table id="resultTable">
+        <thead>
+          <tr>
+            <th>Player</th>
+            <th>Team</th>
+            <th>Twitter</th>
+            <th>YouTube</th>
+            <th>Faceit</th>
+            <th>Twitch</th>
+            <th>Instagram</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
 
-      // Percorre cada linha de dados e preenche a tabela
-      data.forEach((row) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td><a href="${row.playerLink}" target="_blank">${row.playerName}</a></td>
-          <td>${row.teamName}</td>
-          <td>${row.socialLinks.twitter ? `<a href="${row.socialLinks.twitter}" target="_blank">Twitter</a>` : 'N/A'}</td>
-          <td>${row.socialLinks.youtube ? `<a href="${row.socialLinks.youtube}" target="_blank">YouTube</a>` : 'N/A'}</td>
-          <td>${row.socialLinks.faceit ? `<a href="${row.socialLinks.faceit}" target="_blank">Faceit</a>` : 'N/A'}</td>
-          <td>${row.socialLinks.twitch ? `<a href="${row.socialLinks.twitch}" target="_blank">Twitch</a>` : 'N/A'}</td>
-          <td>${row.socialLinks.instagram ? `<a href="${row.socialLinks.instagram}" target="_blank">Instagram</a>` : 'N/A'}</td>
-        `;
-        tbody.appendChild(tr); // Adiciona a linha na tabela
-      });
-    }
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
