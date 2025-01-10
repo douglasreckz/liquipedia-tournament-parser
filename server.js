@@ -5,7 +5,7 @@ const path = require('path');
 const app = express();
 const PORT = 3000;
 
-const url = 'https://liquipedia.net/overwatch/Special:RunQuery/Tournament_player_information?title=Special%3ARunQuery%2FTournament_player_information&pfRunQueryFormName=Tournament+player+information&TPI=page%3DOverwatch%2BChampions%2BSeries%252F2024%252FEMEA%252FStage_3&wpRunQuery=&pf_free_text=&TPI%5Bpage%5D=Overwatch+Champions+Series%2F2024%2FEMEA%2FStage_4&wpRunQuery=&pf_free_text=';
+const url = 'https://liquipedia.net/overwatch/Special:RunQuery/Tournament_player_information?title=Special%3ARunQuery%2FTournament_player_information&pfRunQueryFormName=Tournament+player+information&TPI=page%3DOverwatch%2BChampions%2BSeries%252F2024%252FEMEA%252FStage%2B1&wpRunQuery=&pf_free_text=&TPI%5Bpage%5D=FACEIT+League%2FSeason_1%2FNA%2FMaster&wpRunQuery=&pf_free_text=';
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
